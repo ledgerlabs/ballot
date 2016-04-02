@@ -8,15 +8,37 @@
 </head>
 
 <body>
-	<div class="ui container">
+	<div class="ui container form">
 
 		<hr class="ui hidden divider" />
 
 		<h2 class="ui center aligned header">Ballot dApp</h2>
+		
+		<br />
+		<br />
+		
+		Ballot Address: 
+		
+		<br />
+		
+		<span id="ballotAddress"></span>
 
-		<input type="text" id="_numProposals" class="ui input" placeholder="Number of Proposals" />
+		<hr class="ui hidden divider" />
+
+		<div class="field">
+
+			<input type="number" id="_numProposals" class="ui input" placeholder="Number of Proposals" />
+
+		</div>
 
 		<button id="newBallot" class="ui button blue">Create Ballot Contract</button>
+		
+		<div id="newBallotResponse" class="ui message">
+		  <div class="header">
+			Contract Creation
+		  </div>
+		  <p id="newBallotResponse_body"></p>
+		</div>
 
 
 		<hr class="ui divider" />
@@ -24,7 +46,9 @@
 
 		<h4 class="ui left header">Rights Allocation</h4>
 
-		<input type="text" id="_voter" class="ui input" placeholder="Voter Address" />
+		<div class="field">
+			<input type="text" id="_voter" class="ui input" placeholder="Voter Address" />
+		</div>
 
 		<button id="giveRightToVote" class="ui button green">Give Right to Vote</button>
 
@@ -36,9 +60,19 @@
 
 		<h4 class="ui left header">Proposal Voting</h4>
 
-		<input type="number" id="_proposal" class="ui input" placeholder="Proposal ID Number" />
+		<div class="field">
+			<input type="number" id="_proposal" class="ui input" placeholder="Proposal ID Number" />
+		</div>
 
 		<button id="vote" class="ui button green">Vote</button>
+		
+		
+		<div id="voteResponse" class="ui message">
+		  <div class="header">
+			Voting in Process
+		  </div>
+		  <p id="voteResponse_body"></p>
+		</div>
 
 
 		<hr class="ui divider" />
@@ -47,11 +81,22 @@
 		<h4 class="ui left header">Winning Proposal</h4>
 
 		<button id="winningProposal" class="ui button grey">What Is The Winng Proposal?</button>
+		
+		
+		<div id="winningProposalResponse" class="ui message">
+		  <div class="header">
+			Winning Proposal
+		  </div>
+		  <p id="winningProposalResponse_body"></p>
+		</div>
 	</div>
 
 	<script type="text/javascript">
 		// set web3 object
 		var web3 = new Web3();
+		
+		// Run testnet code
+		// geth --testnet --unlock "0" --shh --rpc --rpcapi="db,eth,net,web3,shh" --rpcaddr="0.0.0.0" --rpccorsdomain="*"
 
 		// setup provider
 		web3.setProvider(new web3.providers.HttpProvider('http://159.203.28.215:8545'));
@@ -100,52 +145,78 @@
 			}],
 			"type": "constructor"
 		}]);
-		
+
 		// Define Ballot Contract Instance Variable
 		var ballotInstance;
+		
+		
+		$('#newBallotResponse').hide();
+		$('#voteResponse').hide();
+		$('#winningProposalResponse').hide();
+
+		// Get Accounts
+		/*web3.eth.getAccounts(function(err, result){
+			console.log(err, result);
+		});*/
+		
+		ballotInstance = Ballot.at('0x3d81a600d74e7953c5ae5e4ee2a0ea713300956e');
 
 		// post message button
 		$('#newBallot').click(function () {
-			ballotInstance = Ballot.new(
-			$('#_numProposals').val(), {
-				from: web3.eth.accounts[0],
-				data: '6060604052604051602080610727833981016040528080519060200190919050505b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690830217905550600160016000506000600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600050600001600050819055508060ff166002600050818154818355818115116100fc578183600052602060002091820191016100fb91906100d9565b808211156100f75760006000820160005060009055506001016100d9565b5090565b5b505050505b50610617806101106000396000f360606040526000357c0100000000000000000000000000000000000000000000000000000000900480635c19a95c1461005a578063609ff1bd146100725780639e7b8d6114610098578063b3f98adc146100b057610058565b005b61007060048080359060200190919050506101aa565b005b61007f6004805050610580565b604051808260ff16815260200191505060405180910390f35b6100ae60048080359060200190919050506100c8565b005b6100c660048080359060200190919050506104a6565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415806101615750600160005060008273ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160009054906101000a900460ff165b1561016b576101a7565b6001600160005060008373ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600050600001600050819055505b50565b60006000600160005060003373ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005091508160010160009054906101000a900460ff16156101fb576104a1565b5b600073ffffffffffffffffffffffffffffffffffffffff16600160005060008573ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160029054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff161415801561030957503373ffffffffffffffffffffffffffffffffffffffff16600160005060008573ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160029054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1614155b1561036a57600160005060008473ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160029054906101000a900473ffffffffffffffffffffffffffffffffffffffff16925082506101fc565b3373ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff1614156103a3576104a1565b60018260010160006101000a81548160ff02191690830217905550828260010160026101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690830217905550600160005060008473ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005090508060010160009054906101000a900460ff161561048457816000016000505460026000508260010160019054906101000a900460ff1660ff16815481101561000257906000526020600020900160005b506000016000828282505401925050819055506104a0565b8160000160005054816000016000828282505401925050819055505b5b505050565b6000600160005060003373ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005090508060010160009054906101000a900460ff168061050157506002600050805490508260ff1610155b1561050b5761057c565b60018160010160006101000a81548160ff02191690830217905550818160010160016101000a81548160ff02191690830217905550806000016000505460026000508360ff16815481101561000257906000526020600020900160005b506000016000828282505401925050819055505b5050565b60006000600060009150600090505b6002600050805490508160ff161015610611578160026000508260ff16815481101561000257906000526020600020900160005b506000016000505411156106035760026000508160ff16815481101561000257906000526020600020900160005b50600001600050549150815080925082505b5b808060010191505061058f565b5b50509056',
-				gas: 3000000
-			},
-			function (e, contract) {
-				console.log(e, contract);
-				
-				if (typeof contract.address != 'undefined') {
-					console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
-				}
-			});
+			console.log($('#_numProposals').val());
+
+			ballotInstance = Ballot.new(parseInt($('#_numProposals').val()), {
+					from: web3.eth.accounts[0],
+					data: '6060604052604051602080610727833981016040528080519060200190919050505b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690830217905550600160016000506000600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600050600001600050819055508060ff166002600050818154818355818115116100fc578183600052602060002091820191016100fb91906100d9565b808211156100f75760006000820160005060009055506001016100d9565b5090565b5b505050505b50610617806101106000396000f360606040526000357c0100000000000000000000000000000000000000000000000000000000900480635c19a95c1461005a578063609ff1bd146100725780639e7b8d6114610098578063b3f98adc146100b057610058565b005b61007060048080359060200190919050506101aa565b005b61007f6004805050610580565b604051808260ff16815260200191505060405180910390f35b6100ae60048080359060200190919050506100c8565b005b6100c660048080359060200190919050506104a6565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415806101615750600160005060008273ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160009054906101000a900460ff165b1561016b576101a7565b6001600160005060008373ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600050600001600050819055505b50565b60006000600160005060003373ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005091508160010160009054906101000a900460ff16156101fb576104a1565b5b600073ffffffffffffffffffffffffffffffffffffffff16600160005060008573ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160029054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff161415801561030957503373ffffffffffffffffffffffffffffffffffffffff16600160005060008573ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160029054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1614155b1561036a57600160005060008473ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005060010160029054906101000a900473ffffffffffffffffffffffffffffffffffffffff16925082506101fc565b3373ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff1614156103a3576104a1565b60018260010160006101000a81548160ff02191690830217905550828260010160026101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690830217905550600160005060008473ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005090508060010160009054906101000a900460ff161561048457816000016000505460026000508260010160019054906101000a900460ff1660ff16815481101561000257906000526020600020900160005b506000016000828282505401925050819055506104a0565b8160000160005054816000016000828282505401925050819055505b5b505050565b6000600160005060003373ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060005090508060010160009054906101000a900460ff168061050157506002600050805490508260ff1610155b1561050b5761057c565b60018160010160006101000a81548160ff02191690830217905550818160010160016101000a81548160ff02191690830217905550806000016000505460026000508360ff16815481101561000257906000526020600020900160005b506000016000828282505401925050819055505b5050565b60006000600060009150600090505b6002600050805490508160ff161015610611578160026000508260ff16815481101561000257906000526020600020900160005b506000016000505411156106035760026000508160ff16815481101561000257906000526020600020900160005b50600001600050549150815080925082505b5b808060010191505061058f565b5b50509056',
+					gas: 3000000
+				},
+				function (e, contract) {	
+					$('#newBallotResponse').show();
+					$('#newBallotResponse_body').html('Contract being created transaction hash: ' + contract.transactionHash);
+
+					if (typeof contract.address != 'undefined') {
+						$('#newBallotResponse_body').html('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
+
+						ballotInstance = contract;
+					}
+				});
 		});
+		
+		// Set ballot address
+		$('#ballotAddress').html(ballotInstance.address);
 
 		// post message button
 		$('#giveRightToVote').click(function () {
-			ballotInstance.giveRightToVote($('#voter').val(), function(err, result){
+			ballotInstance.giveRightToVote($('#voter').val(), function (err, result) {
 				console.log(err, result);
 			});
 		});
 
 		// post message button
 		$('#delegate').click(function () {
-			ballotInstance.delegate($('#voter').val(), function(err, result){
+			ballotInstance.delegate($('#voter').val(), function (err, result) {
 				console.log(err, result);
 			});
 		});
 
 		// post message button
 		$('#vote').click(function () {
-			ballotInstance.vote($('#_proposal').val(), function(err, result){
-				console.log(err, result);
+			var transactionObject = {
+				from: web3.eth.accounts[0],
+				gas: 3000000
+			};
+
+			ballotInstance.vote(parseInt($('#_proposal').val()), transactionObject, function (err, transactionHash) {
+				$('#voteResponse').show();
+				$('#voteResponse_body').html('Your voting transaction is: ' + transactionHash);
 			});
 		});
 
 		// post message button
 		$('#winningProposal').click(function () {
-			ballotInstance.winningProposal(function(err, result){
-				console.log(err, result);
+			ballotInstance.winningProposal(function (err, result) {
+				$('#winningProposalResponse').show();
+				$('#winningProposalResponse_body').html('The winning proposal is: ' + result.toString(10));
 			});
 		});
 	</script>
