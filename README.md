@@ -6,7 +6,7 @@ A simple Ballot dApp using jQuery, Semantic and web3.js.
 
 0. Install <a href="https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum">geth</a>, create an account:
 
-		geth account new
+		geth --testnet account new
 		
 1. Copy the new account address, paste it in the ZeroGox faucet, click "Gimme Wei":
 
